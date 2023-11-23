@@ -6,6 +6,7 @@ def logIn():
     return
 
 def register():
+    print()
     return
 
 def storeLocator():
