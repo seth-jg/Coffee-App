@@ -3,6 +3,7 @@ from tkinter import *
 from tkinter.ttk import *
 from tkinter import font
 from random import randint
+from DatabaseFunctions import *
 
 # Create root screen
 root = Tk()
@@ -40,6 +41,15 @@ nBarStyle.configure("NavBar.TFrame", background="red")
 
 def starter_screen():
     global mainFrame
+    global homeButton
+    global basketButton
+    global profileButton
+
+    # when the user signs out this will reset these variables
+    _username = ""
+    _password = ""
+    _postcode = ""
+    _mobile = ""
 
     # Title bar
     logo = Label(root, text="Beans and Brew Cafe", font=custom_font, background="red")
@@ -50,7 +60,8 @@ def starter_screen():
     mainFrame.place(width=300, height=400, x=0, y=50)
 
     # Start the app
-    openButton = Button(mainFrame, text="Login", command=login_screen)
+    #openButton = Button(mainFrame, text="Login", command=login_screen)
+    openButton = Button(mainFrame, text="Login", command=store_locator)
     openButton.place(width=100, height=100, x=100, y=150)
 
     # Nav bar
@@ -115,13 +126,30 @@ def add_scrollable_frame(parent, width, height, x, y):
 
 # Verify functions
 def login_verify(user, pword):
-    if _username == "" and _password == "" and _postcode == "" and _mobile == "":
+    userInfo = get_user_info(user, pword)
+    if userInfo:
+        _username, _password, _postcode, _mobile = userInfo
+        homeButton.config(state="enabled")
+        basketButton.config(state="enabled")
+        profileButton.config(state="enabled")
+        store_locator()
+    else:
         userIncorect.config(text="Username or Password Incorect")
 
 
-def register_verify(user, pword):
-    return
-
+def register_verify(user, pword, pcode, mobi):
+    if not check_username_exists(user):
+        create_new_user(user, pword, pcode, mobi)
+        _username = user
+        _password = pword
+        _postcode = pcode
+        _mobile = mobi
+        homeButton.config(state="enabled")
+        basketButton.config(state="enabled")
+        profileButton.config(state="enabled")
+        store_locator()
+    else:
+        accountExists.config(text="Account already exists")
 
 # Login screen
 def login_screen():
@@ -136,7 +164,7 @@ def login_screen():
 
     # Entry bars
     user = Entry(mainFrame)
-    password = Entry(mainFrame)
+    password = Entry(mainFrame, show="*")
 
     # Buttons
     loginButton = Button(mainFrame, text="Login", command = lambda: login_verify(user.get(), password.get()))
@@ -158,6 +186,7 @@ def login_screen():
 
 # Sign up screen
 def register():
+    global accountExists
     remove_all_widgets(mainFrame)
 
     # Labels
@@ -166,15 +195,16 @@ def register():
     passwordLabel = Label(mainFrame, text="Enter password: ")
     postcodeLabel = Label(mainFrame, text="Enter postcode: ")
     mobileLabel = Label(mainFrame, text="Enter mobile: ")
+    accountExists = Label(mainFrame)
 
     # Entry bars
     user = Entry(mainFrame)
-    password = Entry(mainFrame)
+    password = Entry(mainFrame, show="*")
     postcode = Entry(mainFrame)
     mobile = Entry(mainFrame)
 
     # Buttons
-    signupButton = Button(mainFrame, text="Sign up", command= lambda: register_verify(user.get(), password.get()))
+    signupButton = Button(mainFrame, text="Sign up", command= lambda: register_verify(user.get(), password.get(), postcode.get(), mobile.get()))
     loginButton = Button(mainFrame, text="Login", command=login_screen)
 
     # Layout
@@ -195,19 +225,31 @@ def register():
     loginButton.place(width=80, x=160, y=340)
     signupButton.place(width=80, x=60, y=340)
 
+    accountExists.place(width=124, x=88, y=370)
+
+
+def store_located():
+    return
 
 # Store locator screen
 def store_locator():
     remove_all_widgets(mainFrame)
+    locations = get_all_store_locations()
+    position = 0
     
     # Title of the page
     regLabel = Label(mainFrame, text="Store Locator", font=header_font)
-    regLabel.place(width=100, x=110, y=10)
+    regLabel.place(width=155, x=75, y=10)
 
+    # Menu frame
+    storeFrame= Frame(mainFrame)
+    storeFrame.place(width=300, height=350, x=0, y=50)
     # Create canvas for the scrollbar
-    frame = add_scrollable_frame(mainFrame, width=300, height=380, x=0, y=50)
+    frame = add_scrollable_frame(storeFrame, width=300, height=350, x=0, y=0)
 
     # Add forloop to create the content for products
+    for location in locations:
+        position += 1
     
 
 # Home screen
@@ -238,11 +280,10 @@ def profile():
     postcodeLabel = Label(mainFrame, text="Enter postcode: ")
     mobileLabel = Label(mainFrame, text="Enter mobile: ")
 
-    # Entry bars
-    user = Label(mainFrame)
-    password = Label(mainFrame)
-    postcode = Label(mainFrame)
-    mobile = Label(mainFrame)
+    user = Label(mainFrame, text=_username)
+    password = Label(mainFrame, text="*"*len(_password))
+    postcode = Label(mainFrame, text=_postcode)
+    mobile = Label(mainFrame, text=_mobile)
 
     # Buttons
     signOutButton = Button(mainFrame, text="SignOut", command=starter_screen)
