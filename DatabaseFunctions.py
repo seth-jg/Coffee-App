@@ -42,10 +42,10 @@ def create_new_user(username, password, postcode, mobile):
     conn.close()
 
 
-def get_product_prices():
+def get_all_products():
     conn = sqlite3.connect("BeansAndBrewDatabase.db")
     cur = conn.cursor()
-    cur.execute("SELECT productName, price FROM products")
+    cur.execute("SELECT productID, productName, price FROM products")
     products = cur.fetchall()
     conn.close()
     return products

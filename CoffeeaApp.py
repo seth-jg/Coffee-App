@@ -4,6 +4,7 @@ from tkinter.ttk import *
 from tkinter import font
 from random import randint
 from DatabaseFunctions import *
+from AccountHandling import *
 
 # Create root screen
 root = Tk()
@@ -11,10 +12,7 @@ root.geometry("300x500")
 root.resizable(False, False)
 
 # store users info
-_username = ""
-_password = ""
-_postcode = ""
-_mobile = ""
+_user = Account()
 _shop = ""
 _total = 0
 
@@ -33,10 +31,12 @@ header_font = font.Font(family="Arial", size=18)
 # setting the styles
 mainStyle = Style()
 nBarStyle = Style()
+itemStyle = Style()
 
 # Configure styles for main frame and navigation bar frame
-mainStyle.configure("Main.TFrame", background="blue")
+mainStyle.configure("Main.TFrame", background=background)
 nBarStyle.configure("NavBar.TFrame", background="red")
+itemStyle.configure("item.TFrame", background=itemColor)
 
 
 def starter_screen():
@@ -44,12 +44,6 @@ def starter_screen():
     global homeButton
     global basketButton
     global profileButton
-
-    # when the user signs out this will reset these variables
-    _username = ""
-    _password = ""
-    _postcode = ""
-    _mobile = ""
 
     # Title bar
     logo = Label(root, text="Beans and Brew Cafe", font=custom_font, background="red")
@@ -103,35 +97,14 @@ def add_color_to_all_widgets(parent):
             widget.config(background=itemColor)
 
 
-# creates a frame with a scrollbar
-def add_scrollable_frame(parent, width, height, x, y):
-    # Create a canvas
-    canvas = Canvas(parent)
-    canvas.place(width=width, height=height, x=x, y=y)
-
-    # Add a scrollbar to the canvas
-    scrollbar = Scrollbar(parent, command=canvas.yview)
-    scrollbar.pack(side=RIGHT, fill=Y)
-
-    # Configure the canvas
-    canvas.configure(yscrollcommand=scrollbar.set)
-    canvas.bind('<Configure>', lambda e: canvas.configure(scrollregion=canvas.bbox('all')))
-
-    # Create a frame inside the canvas
-    frame = Frame(canvas)
-    canvas.create_window((0, 0), window=frame, anchor='nw')
-
-    return frame
-
-
 # Verify functions
 def login_verify(user, pword):
     userInfo = get_user_info(user, pword)
     if userInfo:
-        _username, _password, _postcode, _mobile = userInfo
-        homeButton.config(state="enabled")
-        basketButton.config(state="enabled")
-        profileButton.config(state="enabled")
+        _user = Account(userInfo)
+        homeButton.config(state="normal")
+        basketButton.config(state="normal")
+        profileButton.config(state="normal")
         store_locator()
     else:
         userIncorect.config(text="Username or Password Incorect")
@@ -140,13 +113,10 @@ def login_verify(user, pword):
 def register_verify(user, pword, pcode, mobi):
     if not check_username_exists(user):
         create_new_user(user, pword, pcode, mobi)
-        _username = user
-        _password = pword
-        _postcode = pcode
-        _mobile = mobi
-        homeButton.config(state="enabled")
-        basketButton.config(state="enabled")
-        profileButton.config(state="enabled")
+        _user = Account(user, pword, pcode, mobi)
+        homeButton.config(state="normal")
+        basketButton.config(state="normal")
+        profileButton.config(state="normal")
         store_locator()
     else:
         accountExists.config(text="Account already exists")
@@ -235,26 +205,32 @@ def store_located():
 def store_locator():
     remove_all_widgets(mainFrame)
     locations = get_all_store_locations()
-    position = 0
+    positiony = 0
     
     # Title of the page
     regLabel = Label(mainFrame, text="Store Locator", font=header_font)
     regLabel.place(width=155, x=75, y=10)
 
     # Menu frame
-    storeFrame= Frame(mainFrame)
+    storeFrame = Frame(mainFrame)
     storeFrame.place(width=300, height=350, x=0, y=50)
-    # Create canvas for the scrollbar
-    frame = add_scrollable_frame(storeFrame, width=300, height=350, x=0, y=0)
 
-    # Add forloop to create the content for products
-    for location in locations:
-        position += 1
+    # Add for loop to create the content for products
+    for n, location in enumerate(locations):
+        item = Label(storeFrame, text=location)
+        item.place(x=0)
+        itemFrame = Frame(storeFrame)
+        itemFrame.config(style="item.TFrame" if n % 2 == 0 else "Main.TFrame")
+        itemFrame.place(width=300, height=50, x=0, y=positiony)
+        positiony += 50
     
 
 # Home screen
 def home():
     remove_all_widgets(mainFrame)
+    productArray = get_all_products()
+    positiony = 0
+    print(productArray)
 
     # Title of the page
     regLabel = Label(mainFrame, text="Menu", font=header_font)
@@ -262,12 +238,7 @@ def home():
 
     # Menu frame
     menuFrame= Frame(mainFrame)
-    menuFrame.place(width=300, height=350, x=0, y=50)
-    # Create canvas for the scrollbar
-    frame = add_scrollable_frame(menuFrame, width=300, height=350, x=0, y=0)
-
-    # Add forloop to create the content for products
-    
+    menuFrame.place(width=300, height=350, x=0, y=50) 
 
 # Profile screen
 def profile():
@@ -280,10 +251,10 @@ def profile():
     postcodeLabel = Label(mainFrame, text="Enter postcode: ")
     mobileLabel = Label(mainFrame, text="Enter mobile: ")
 
-    user = Label(mainFrame, text=_username)
-    password = Label(mainFrame, text="*"*len(_password))
-    postcode = Label(mainFrame, text=_postcode)
-    mobile = Label(mainFrame, text=_mobile)
+    user = Label(mainFrame, text=_user.user)
+    password = Label(mainFrame, text="*"*len(_user.password))
+    postcode = Label(mainFrame, text=_user.postcode)
+    mobile = Label(mainFrame, text=_user.mobile)
 
     # Buttons
     signOutButton = Button(mainFrame, text="SignOut", command=starter_screen)
@@ -317,8 +288,6 @@ def basket():
     # Basket frame
     basketFrame= Frame(mainFrame)
     basketFrame.place(width=300, height=300, x=0, y=50)
-    #create canvas for the scrollbar
-    frame = add_scrollable_frame(basketFrame, width=300, height=300, x=0, y=0)
 
     # Add forloop to create the content for products
     
@@ -349,9 +318,6 @@ def checkout_screen():
     # Item veiwer
     itemFrame= Frame(mainFrame)
     itemFrame.place(width=300, height=120, x=0, y=70)
-
-    # Create canvas for the scrollbar
-    frame = add_scrollable_frame(itemFrame, width=300, height=20, x=0, y=0)
 
     # Add forloop to create the content for products
 
