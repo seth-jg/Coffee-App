@@ -49,3 +49,16 @@ def get_all_products():
     products = cur.fetchall()
     conn.close()
     return products
+
+def get_all_products_dictioanary():
+    conn = sqlite3.connect("BeansAndBrewDatabase.db")
+    cur = conn.cursor()
+    cur.execute("SELECT productID, productName, price FROM products")
+    products = cur.fetchall()
+    conn.close()
+
+    coffee_dict = {}
+    for product_id, coffee_name, price in products:
+        coffee_dict[coffee_name] = [product_id, price]
+
+    return coffee_dict
