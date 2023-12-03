@@ -41,6 +41,12 @@ def create_new_user(username, password, postcode, mobile):
     conn.commit()
     conn.close()
 
+def add_order(user, storeid, quantities, items, prices, total):
+    conn = sqlite3.connect("BeansAndBrewDatabase.db")
+    cur = conn.cursor()
+    cur.execute("INSERT INTO orders (username, storeID, quantities, items, prices, total) VALUES (?, ?, ?, ?, ?, ?)", (user, storeid, quantities, items, prices, total))
+    conn.commit()
+    conn.close()
 
 def get_all_products():
     conn = sqlite3.connect("BeansAndBrewDatabase.db")

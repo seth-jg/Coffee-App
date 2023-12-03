@@ -1,5 +1,9 @@
 import sqlite3
 
+
+'''
+this class is to be used with the profile tab in later updates
+'''
 class Account:
     def __init__(self, username, password, postcode, mobile):
         self.user = username
