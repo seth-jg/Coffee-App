@@ -12,11 +12,19 @@ def check_username_exists(username):
 def get_all_store_locations():
     conn = sqlite3.connect("BeansAndBrewDatabase.db")
     cur = conn.cursor()
-    cur.execute("SELECT location FROM storeLocations")
-    locations = [row[0] for row in cur.fetchall()]
+    cur.execute("SELECT * FROM storeLocations")
+    locations = cur.fetchall()
     conn.close()
     return locations
+#print(get_all_store_locations())
 
+def check_order_id(id):
+    conn = sqlite3.connect("BeansAndBrewDatabase.db")
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM orders WHERE orderID=?", (id,))
+    result = cur.fetchone()
+    conn.close()
+    return result is not None
 
 def check_credentials(username, password):
     conn = sqlite3.connect("BeansAndBrewDatabase.db")
@@ -41,10 +49,10 @@ def create_new_user(username, password, postcode, mobile):
     conn.commit()
     conn.close()
 
-def add_order(user, storeid, quantities, items, prices, total):
+def add_order(id, user, storeid, quantities, items, prices, total):
     conn = sqlite3.connect("BeansAndBrewDatabase.db")
     cur = conn.cursor()
-    cur.execute("INSERT INTO orders (username, storeID, quantities, items, prices, total) VALUES (?, ?, ?, ?, ?, ?)", (user, storeid, quantities, items, prices, total))
+    cur.execute("INSERT INTO orders (orderID, username, storeID, quantities, items, prices, total) VALUES (?, ?, ?, ?, ?, ?, ?)", (id, user, storeid, quantities, items, prices, total))
     conn.commit()
     conn.close()
 

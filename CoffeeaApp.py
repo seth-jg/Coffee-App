@@ -16,15 +16,17 @@ _user = ""
 _password = ""
 _postcode = ""
 _mobile = ""
+_shopID = ""
 _shop = ""
 _total = 0
+_orderNumber = 0
 
 # 2d array for customers basket
 _basketDictionary = {} 
 
 # Colors
 background =  "#c69f6c"
-itemColor = "#D2B48C"
+itemColor = "#B09775"
 root.config(bg=background) # Change root background
 
 # Font
@@ -38,7 +40,7 @@ itemStyle = Style()
 
 # Configure styles for main frame and navigation bar frame
 mainStyle.configure("Main.TFrame", background=background)
-nBarStyle.configure("NavBar.TFrame", background="red")
+nBarStyle.configure("NavBar.TFrame", background=itemColor)
 itemStyle.configure("item.TFrame", background=itemColor)
 
 
@@ -49,7 +51,7 @@ def starter_screen():
     global profileButton
 
     # Title bar
-    logo = Label(root, text="Beans and Brew Cafe", font=custom_font, background="red")
+    logo = Label(root, text="Beans and Brew Cafe", font=custom_font, background=itemColor)
     logo.place(x=0, y=0, height=50)
 
     # Where teh myjority of content will fit in
@@ -73,15 +75,6 @@ def starter_screen():
     basketButton.place(width=80, height=30, x=110, y=10)
     profileButton.place(width=80, height=30, x=200, y=10)
 
-    # Remove these when done
-    homeButton.config(state="enabled")
-    basketButton.config(state="enabled")
-    profileButton.config(state="enabled")
-    ord = Button(mainFrame, text="order", command=ordered_screen)
-    ord.place(width=100, x=100, y=300)
-    chec = Button(mainFrame, text="checkout", command=checkout_screen)
-    chec.place(width=100, x=100, y=350)
-
     # Run the Tkinter event loop
     root.mainloop()
 
@@ -97,6 +90,15 @@ def add_color_to_all_widgets(parent):
     for widget in parent.winfo_children():
         if isinstance(widget, Label):
             widget.config(background=itemColor)
+
+
+def reset_variables():
+    global _basketDictionary, _shopID, _shop, _total, _orderNumber
+    _basketDictionary = {}
+    _shopID = ""
+    _shop = ""
+    _total = 0
+    _orderNumber = 0
 
 
 # Verify functions
@@ -143,10 +145,10 @@ def login_screen():
     remove_all_widgets(mainFrame)
 
     # Labels
-    logLabel = Label(mainFrame, text="Log In", font=header_font)
-    userLabel = Label(mainFrame, text="Enter username: ")
-    passwordLabel = Label(mainFrame, text="Enter password: ")
-    userIncorect = Label(mainFrame, text="")
+    logLabel = Label(mainFrame, text="Log In", font=header_font, background=background)
+    userLabel = Label(mainFrame, text="Enter username: ", background=background)
+    passwordLabel = Label(mainFrame, text="Enter password: ", background=background)
+    userIncorect = Label(mainFrame, text="", background=background)
 
     # Entry bars
     user = Entry(mainFrame)
@@ -176,12 +178,12 @@ def register():
     remove_all_widgets(mainFrame)
 
     # Labels
-    regLabel = Label(mainFrame, text="Sign up", font=header_font)
-    userLabel = Label(mainFrame, text="Enter username: ")
-    passwordLabel = Label(mainFrame, text="Enter password: ")
-    postcodeLabel = Label(mainFrame, text="Enter postcode: ")
-    mobileLabel = Label(mainFrame, text="Enter mobile: ")
-    accountExists = Label(mainFrame)
+    regLabel = Label(mainFrame, text="Sign up", font=header_font, background=background)
+    userLabel = Label(mainFrame, text="Enter username: ", background=background)
+    passwordLabel = Label(mainFrame, text="Enter password: ", background=background)
+    postcodeLabel = Label(mainFrame, text="Enter postcode: ", background=background)
+    mobileLabel = Label(mainFrame, text="Enter mobile: ", background=background)
+    accountExists = Label(mainFrame, background=background)
 
     # Entry bars
     user = Entry(mainFrame)
@@ -227,9 +229,11 @@ def store_previous_page():
         storeCurrentPage -= 1
         home()
 
-def store_located(shop):
+def store_located(id, shop):
     global _shop
+    global _shopID
     _shop = shop
+    _shopID = id
     home()
 
 # Store locator screen
@@ -242,47 +246,47 @@ def store_locator():
     pageContent = []
     pages = {}
 
-    for location in locations:
+    for id, location in locations:
         counter += 1
         if counter %6 == 0:
             pages[pageCounter] = pageContent
             pageContent.clear()
             pageCounter += 1
         else:
-            pageContent.append(location)
+            pageContent.append([id, location])
     pages[pageCounter] = pageContent
-    print(pages)
+    # print(pages)
     
     # Title of the page
-    regLabel = Label(mainFrame, text="Store Locator", font=header_font)
+    regLabel = Label(mainFrame, text="Store Locator", font=header_font, background=background)
     regLabel.place(width=155, x=75, y=10)
 
     # store frame
-    storeFrame = Frame(mainFrame)
+    storeFrame = Frame(mainFrame, style="Main.TFrame")
     storeFrame.place(width=300, height=350, x=0, y=50)
 
     counter = 0
     # Add for loop to create the content for products
-    for location in pages[storeCurrentPage]:
-        print(location)
+    for id, location in pages[storeCurrentPage]:
+        # print(location)
         
         locationFrame = Frame(storeFrame)
         locationFrame.place(width=300, height=50, x=0, y=positiony)
-        locationFrame.config(style="item.TFrame" if counter % 2 == 0 else "Main.TFrame")
-        item = Label(locationFrame, text=location)
+        locationFrame.config(style="Main.TFrame")
+        item = Label(locationFrame, text=location, background=background)
         item.place(width=150, height=20, x=20, y=15)
 
         counter += 1
         positiony += 50
 
-        selectButton = Button(locationFrame, text="Select", command=lambda: store_located(location))
+        selectButton = Button(locationFrame, text="Select", command=lambda: store_located(id, location))
         selectButton.place(width=70, height=30, y=10, x=210)
     
     global storeBackButton
     global storeNextButton
-    pageControlFrame = Frame(mainFrame)
+    pageControlFrame = Frame(mainFrame, style="Main.TFrame")
     storeBackButton = Button(pageControlFrame, text="<--", command=store_previous_page)
-    pageLabel = Label(pageControlFrame, text=f"Page {storeCurrentPage}")
+    pageLabel = Label(pageControlFrame, text=f"Page {storeCurrentPage}", background=background)
     storeNextButton = Button(pageControlFrame, text="-->", command=lambda: menu_next_page(pageCounter))
 
     pageControlFrame.place(width=300, height=50, x=0, y=350)
@@ -320,18 +324,18 @@ def item_selected(item, price):
         newQuantity = coffee[1] + 1
         newPrice = price * newQuantity
         _basketDictionary[item] = [newPrice, newQuantity]
-        print(_basketDictionary)
+        # print(_basketDictionary)
     else:
         _basketDictionary[item] = [price, 1]
-    print(_basketDictionary)
+    # print(_basketDictionary)
 
 # Home screen
 def home():
     remove_all_widgets(mainFrame)
-    print(_user, _password, _postcode, _mobile, _shop)
+    # print(_user, _password, _postcode, _mobile, _shop)
 
     # Title of the page
-    regLabel = Label(mainFrame, text="Menu", font=header_font)
+    regLabel = Label(mainFrame, text="Menu", font=header_font, background=background)
     regLabel.place(width=100, x=110, y=10)
         
     menuFrame = Frame(mainFrame, style="Main.TFrame")
@@ -358,17 +362,17 @@ def home():
     pages[pageCounter] = list(tempPage)
 
     menuLastPage = list(pages.keys())[-1]
-    print(menuLastPage)
-    print(pages)
+    # print(menuLastPage)
+    # print(pages)
 
     counter = 0
     for coffee, price in pages[menuCurrentPage]:
-        print(coffee, price)
+        # print(coffee, price)
         coffeeFrame = Frame(menuFrame)
         coffeeFrame.place(width=300, height=50, x=0, y=position)
-        coffeeFrame.config(style="item.TFrame" if counter % 2 == 0 else "Main.TFrame")
-        coffeeName = Label(coffeeFrame, text=coffee)
-        coffeePrice = Label(coffeeFrame, text=f"£{price}")
+        coffeeFrame.config(style="Main.TFrame")
+        coffeeName = Label(coffeeFrame, text=coffee, background=background)
+        coffeePrice = Label(coffeeFrame, text=f"£{price}", background=background)
         selectButton = Button(coffeeFrame, text="Select", command=lambda coffee=coffee, price=price: item_selected(coffee, price))
 
         counter +=1
@@ -380,10 +384,10 @@ def home():
 
     global menuBackButton
     global menuNextButton
-    pageControlFrame = Frame(mainFrame)
+    pageControlFrame = Frame(mainFrame, style="Main.TFrame")
     menuBackButton = Button(pageControlFrame, text="<--", command=menu_previous_page)
-    pageLabel = Label(pageControlFrame, text=f"Page {menuCurrentPage}")
-    itemAdded = Label(pageControlFrame, text="")
+    pageLabel = Label(pageControlFrame, text=f"Page {menuCurrentPage}", background=background)
+    itemAdded = Label(pageControlFrame, text="", background=background)
     menuNextButton = Button(pageControlFrame, text="-->", command=lambda: menu_next_page(menuLastPage))
 
     pageControlFrame.place(width=300, height=50, x=0, y=350)
@@ -402,23 +406,22 @@ def home():
     else:
         menuNextButton.configure(state="normal")
     
-    
 
 # Profile screen
 def profile():
     remove_all_widgets(mainFrame)
 
     # Labels
-    regLabel = Label(mainFrame, text="Sign up", font=header_font)
-    userLabel = Label(mainFrame, text="Enter username: ")
-    passwordLabel = Label(mainFrame, text="Enter password: ")
-    postcodeLabel = Label(mainFrame, text="Enter postcode: ")
-    mobileLabel = Label(mainFrame, text="Enter mobile: ")
+    regLabel = Label(mainFrame, text="Sign up", font=header_font, background=background)
+    userLabel = Label(mainFrame, text="Enter username: ", background=background)
+    passwordLabel = Label(mainFrame, text="Enter password: ", background=background)
+    postcodeLabel = Label(mainFrame, text="Enter postcode: ", background=background)
+    mobileLabel = Label(mainFrame, text="Enter mobile: ", background=background)
 
-    user = Label(mainFrame, text=_user.user)
-    password = Label(mainFrame, text="*"*len(_user.password))
-    postcode = Label(mainFrame, text=_user.postcode)
-    mobile = Label(mainFrame, text=_user.mobile)
+    user = Label(mainFrame, text=_user, background=background)
+    password = Label(mainFrame, text="*"*len(_password), background=background)
+    postcode = Label(mainFrame, text=_postcode, background=background)
+    mobile = Label(mainFrame, text=_mobile, background=background)
 
     # Buttons
     signOutButton = Button(mainFrame, text="SignOut", command=starter_screen)
@@ -457,9 +460,9 @@ def basket_previous_page():
 
 def update_basket(coffee, price, quantity):
     coffeeDict = get_all_products_dictioanary()
-    print(quantity)
+    # print(quantity)
     coffeeInfo = coffeeDict[coffee]
-    print(coffeeInfo[1])
+    # print(coffeeInfo[1])
     newPrice = float(coffeeInfo[1]) * float(quantity)
     _basketDictionary[coffee] = [newPrice, quantity]
     basket()
@@ -470,13 +473,15 @@ def delete_item_from_basket(item):
 
 def basket():
     remove_all_widgets(mainFrame)
+    global _total
+    _total = 0
 
     # Title of the page
-    regLabel = Label(mainFrame, text="Basket", font=header_font)
+    regLabel = Label(mainFrame, text="Basket", font=header_font, background=background)
     regLabel.place(width=100, x=110, y=10)
 
     # Basket frame
-    basketFrame= Frame(mainFrame)
+    basketFrame= Frame(mainFrame, style="Main.TFrame")
     basketFrame.place(width=300, height=300, x=0, y=50)
 
     # Add forloop to create the content for products
@@ -507,14 +512,14 @@ def basket():
         coffee = _basketDictionary[product[0]]
         price = coffee[0]
         quantity = coffee[1]
-        print(price, quantity)
+        # print(price, quantity)
 
         coffeeFrame = Frame(basketFrame)
         coffeeFrame.place(width=300, height=50, x=0, y=position)
-        coffeeFrame.config(style="item.TFrame" if counter % 2 == 0 else "Main.TFrame")
+        coffeeFrame.config(style="Main.TFrame")
         quantityEntry = Entry(coffeeFrame)
-        coffeeName = Label(coffeeFrame, text=product)
-        coffeePrice = Label(coffeeFrame, text=f"£{price}")
+        coffeeName = Label(coffeeFrame, text=product, background=background)
+        coffeePrice = Label(coffeeFrame, text=f"£{price}", background=background)
         updateButton = Button(coffeeFrame, text="update", command=lambda entry=quantityEntry, coffee=product[0], price=price: update_basket(coffee, price, entry.get()))
         binButton = Button(coffeeFrame, text="bin", command=lambda coffee=product[0]: delete_item_from_basket(coffee))
         quantityEntry.insert(END, quantity)
@@ -531,9 +536,9 @@ def basket():
 
     global basketBackButton
     global basketNextButton
-    pageControlFrame = Frame(mainFrame)
+    pageControlFrame = Frame(mainFrame, style="Main.TFrame")
     basketBackButton = Button(pageControlFrame, text="<--", command=basket_previous_page)
-    pageLabel = Label(pageControlFrame, text=f"Page {basketCurrentPage}")
+    pageLabel = Label(pageControlFrame, text=f"Page {basketCurrentPage}", background=background)
     basketNextButton = Button(pageControlFrame, text="-->", command=lambda: basket_next_page(basketLastPage))
 
     pageControlFrame.place(width=300, height=50, x=0, y=300)
@@ -558,39 +563,12 @@ def basket():
 
     if len(_basketDictionary) == 0:
         checkoutButton.config(state="disabled") 
+    
+    for product in _basketDictionary:
+        _total += _basketDictionary[product][0]
 
-
-# Checkout screen
-def paying_process():
-    coffeeList = ""
-    priceList = ""
-    quantityList = ""
-
-    lastCoffee = list(_basketDictionary.keys())[-1]
-    # print(lastCoffee)
-
-    for coffee in _basketDictionary:
-        if coffee == lastCoffee:
-            coffeeList += coffee
-            priceList += str(_basketDictionary[coffee][0])
-            quantityList += str(_basketDictionary[coffee][1])
-        else:
-            coffeeList += f"{coffee}, "
-            priceList += f"{_basketDictionary[coffee][0]}, "
-            quantityList += f"{_basketDictionary[coffee][1]}, "
-
-    # print(coffeeList)
-    # print(priceList)
-    # print(quantityList)
-
-    return
-
-
-
-
-
-
-
+    totalLabel = Label(mainFrame, text=f"Total: £{_total}", background=background)
+    totalLabel.place(width=80, height=30, x=210, y=360)
 
 
 checkCurrentPage = 1
@@ -610,19 +588,19 @@ def checkout_screen():
     remove_all_widgets(mainFrame)
     
     # Title of the page
-    regLabel = Label(mainFrame, text="Checkout", font=header_font)
+    regLabel = Label(mainFrame, text="Checkout", font=header_font, background=background)
     regLabel.place(width=120, x=90, y=10)
 
     # Store label
-    storeLabel = Label(mainFrame, text=f"Store: {_shop}")
+    storeLabel = Label(mainFrame, text=f"Store: {_shop}", background=background)
     storeLabel.place(width=150, x=0, y=50)
 
     # Item total
-    storeLabel = Label(mainFrame, text=f"Total: £{_total}")
+    storeLabel = Label(mainFrame, text=f"Total: £{_total}", background=background)
     storeLabel.place(width=120, x=180, y=50)
 
     # Item veiwer
-    itemFrame= Frame(mainFrame)
+    itemFrame= Frame(mainFrame, style="Main.TFrame")
     itemFrame.place(width=300, height=120, x=0, y=70)
 
     counter = 0
@@ -653,14 +631,14 @@ def checkout_screen():
         coffee = _basketDictionary[product[0]]
         price = coffee[0]
         quantity = coffee[1]
-        print(price, quantity)
+        # print(price, quantity)
 
-        coffeeFrame = Frame(itemFrame)
+        coffeeFrame = Frame(itemFrame, style="Main.TFrame")
         coffeeFrame.place(width=300, height=50, x=0, y=position)
 
-        quantityLabel = Label(coffeeFrame, text=quantity)
-        coffeeLabel = Label(coffeeFrame, text=product)
-        priceLabel = Label(coffeeFrame, text=f"£{price}")
+        quantityLabel = Label(coffeeFrame, text=quantity, background=background)
+        coffeeLabel = Label(coffeeFrame, text=product, background=background)
+        priceLabel = Label(coffeeFrame, text=f"£{price}", background=background)
 
         quantityLabel.place(width=20, height=20, y=5, x=10)
         coffeeLabel.place(width=120, height=20,y=5, x=100)
@@ -670,9 +648,9 @@ def checkout_screen():
 
     global checkBackButton
     global checkNextButton
-    pageControlFrame = Frame(itemFrame)
+    pageControlFrame = Frame(itemFrame, style="Main.TFrame")
     checkBackButton = Button(pageControlFrame, text="<--", command=check_previous_page)
-    pageLabel = Label(pageControlFrame, text=f"Page {basketCurrentPage}")
+    pageLabel = Label(pageControlFrame, text=f"Page {basketCurrentPage}", background=background)
     checkNextButton = Button(pageControlFrame, text="-->", command=lambda: check_next_page(checkLastPage))
 
     pageControlFrame.place(width=300, height=30, x=0, y=90)
@@ -692,9 +670,9 @@ def checkout_screen():
 
     # Card information
     # Labels 
-    nameOnCardLabel = Label(mainFrame, text="Name on card")
-    cardNumberLabel = Label(mainFrame, text="Card number")
-    cvv2Label = Label(mainFrame, text="CVV2")
+    nameOnCardLabel = Label(mainFrame, text="Name on card", background=background)
+    cardNumberLabel = Label(mainFrame, text="Card number", background=background)
+    cvv2Label = Label(mainFrame, text="CVV2", background=background)
 
     # Entry
     nameOnCard = Entry(mainFrame)
@@ -710,18 +688,143 @@ def checkout_screen():
     cvv2.place(width=200, x=50, y=320)
 
     # Pay button
-    payButton = Button(mainFrame, text="Pay")
+    payButton = Button(mainFrame, text="Pay", command=paying_process)
     payButton.place(width=80, height=30, x=110, y=360)
 
 
+# Checkout screen
+def paying_process():
+    coffeeList = ""
+    priceList = ""
+    quantityList = ""
+
+    lastCoffee = list(_basketDictionary.keys())[-1]
+    # print(lastCoffee)
+
+    for coffee in _basketDictionary:
+        if coffee == lastCoffee:
+            coffeeList += coffee
+            priceList += str(_basketDictionary[coffee][0])
+            quantityList += str(_basketDictionary[coffee][1])
+        else:
+            coffeeList += f"{coffee}, "
+            priceList += f"{_basketDictionary[coffee][0]}, "
+            quantityList += f"{_basketDictionary[coffee][1]}, "
+
+    # print(coffeeList)
+    # print(priceList)
+    # print(quantityList)
+
+    global _orderNumber
+    _orderNumber = randint(100000, 999999)
+
+    while check_order_id(_orderNumber):
+        _orderNumber = randint(100000, 999999)
+
+    add_order(_orderNumber, _user, _shopID, quantityList, coffeeList, priceList, _total)
+    ordered_screen()
+
+
 # Order screen
+def leave_ordered_screen():
+    homeButton.config(state="normal")
+    basketButton.config(state="normal")
+    profileButton.config(state="normal")
+    reset_variables()
+    home()
+
+orderCurrentPage = 1
+def order_next_page(orderLastPage):
+    global orderCurrentPage
+    if orderCurrentPage != orderLastPage:
+        orderCurrentPage += 1
+        ordered_screen()
+
+def order_previous_page():
+    global orderCurrentPage
+    if orderCurrentPage != 1:
+        orderCurrentPage -= 1
+        ordered_screen()
+
 def ordered_screen():
     remove_all_widgets(mainFrame)
+    homeButton.config(state="disabled")
+    basketButton.config(state="disabled")
+    profileButton.config(state="disabled")
 
     # Title of the page
-    regLabel = Label(mainFrame, text=f"Order # {randint(100000, 999999)}", font=header_font)
+    regLabel = Label(mainFrame, text=f"Order # {_orderNumber}", font=header_font, background=background)
     regLabel.place(width=300, x=0, y=10)
 
+    pages = {}
+    orderPageCounter = 1
+    itemCounter = 0
+    pageContent = []
+    yposition = 50
+    #print(_basketDictionary)
+
+    for product in _basketDictionary:
+
+        pageContent.append([product])
+        itemCounter += 1
+
+        #print(product)
+        if itemCounter %5 == 0:
+            pages[orderPageCounter] = list(pageContent)
+            pageContent = []
+            orderPageCounter +=1
+        
+        pages[orderPageCounter] = list(pageContent)
+    
+    itemCounter = 0
+    for item in pages[orderCurrentPage]:
+        coffee = _basketDictionary[product]
+        price = coffee[0]
+        quantity = coffee[1]
+        #print(price, quantity)
+        
+        coffeeFrame = Frame(mainFrame, style="Main.TFrame")
+        coffeeFrame.place(width=300, height=50, x=0, y=yposition)
+        yposition += 50
+
+        coffeeLabel = Label(coffeeFrame, text=item, background=background)
+        priceLabel = Label(coffeeFrame, text=f"£{price}", background=background)
+        quantityLabel = Label(coffeeFrame, text=quantity, background=background)
+
+        quantityLabel.place(width=40, height=30, y=10, x=20)
+        coffeeLabel.place(width=120, height=30, y=10, x=100)
+        priceLabel.place(width=60, height=30, y=10, x=240)
+
+    global orderBackButton
+    global orderNextButton
+    pageControlFrame = Frame(mainFrame, style="Main.TFrame")
+    orderBackButton = Button(pageControlFrame, text="<--", command=order_previous_page)
+    pageLabel = Label(pageControlFrame, text=f"Page {orderCurrentPage}", background=background)
+    orderNextButton = Button(pageControlFrame, text="-->", command=lambda: order_next_page(orderPageCounter))
+
+    pageControlFrame.place(width=350, height=50, x=0, y=350)
+    orderBackButton.place(width=70, height=30, y=10, x=18)
+    pageLabel.place(width=40, height=30, y=10, x=130)
+    orderNextButton.place(width=70, height=30, y=10, x=212)
+
+    if orderCurrentPage == 1:
+        orderBackButton.configure(state="disabled")
+    else:
+        orderBackButton.configure(state="normal")
+
+    if orderCurrentPage == orderPageCounter:
+        orderNextButton.configure(state="disabled")
+    else:
+        orderNextButton.configure(state="normal")
+
+    totalLabel = Label(mainFrame, text="Total:", font=header_font, background=background)
+    totalLabel.place(width=100, x=0, y=320)
+
+    newHomeButton = Button(mainFrame, text="Return Home", command=leave_ordered_screen)
+    newHomeButton.place(width=80, height=30, x=110, y=320)
+   
+    costLabel = Label(mainFrame, text=f"£{_total}", font=header_font, background=background)
+    costLabel.place(width=100, x=200, y=320)
 
 if __name__ == "__main__":
     starter_screen()
