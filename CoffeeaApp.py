@@ -54,7 +54,7 @@ def starter_screen():
     logo = Label(root, text="Beans and Brew Cafe", font=custom_font, background=itemColor)
     logo.place(x=0, y=0, height=50)
 
-    # Where teh myjority of content will fit in
+    # Where the myjority of content will fit in
     mainFrame = Frame(root, style="Main.TFrame")
     mainFrame.place(width=300, height=400, x=0, y=50)
 
@@ -76,7 +76,7 @@ def starter_screen():
     profileButton.place(width=80, height=30, x=200, y=10)
 
     # Run the Tkinter event loop
-    root.mainloop()
+    root.mainloop() 
 
 
 # removes all the widgets from the screen/ frame
@@ -93,12 +93,17 @@ def add_color_to_all_widgets(parent):
 
 
 def reset_variables():
-    global _basketDictionary, _shopID, _shop, _total, _orderNumber
+    global _basketDictionary, _shopID, _shop, _total, _orderNumber, basketCurrentPage, storeCurrentPage, menuCurrentPage, checkCurrentPage, orderCurrentPage
     _basketDictionary = {}
     _shopID = ""
     _shop = ""
     _total = 0
     _orderNumber = 0
+    basketCurrentPage = 1
+    storeCurrentPage = 1
+    menuCurrentPage = 1
+    checkCurrentPage = 1
+    orderCurrentPage = 1
 
 
 # Verify functions
