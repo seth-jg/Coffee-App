@@ -16,7 +16,7 @@ def get_all_store_locations():
     locations = cur.fetchall()
     conn.close()
     return locations
-print(get_all_store_locations())
+# print(get_all_store_locations())
 
 def check_order_id(id):
     conn = sqlite3.connect("BeansAndBrewDatabase.db")
