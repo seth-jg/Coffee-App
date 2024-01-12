@@ -59,8 +59,11 @@ def starter_screen():
     mainFrame.place(width=300, height=400, x=0, y=50)
 
     # Start the app
-    openButton = Button(mainFrame, text="Login", command=login_screen)
-    openButton.place(width=100, height=100, x=100, y=150)
+    loginButton = Button(mainFrame, text="Login", command=login_screen)
+    loginButton.place(width=100, height=50, x=100, y=130)
+
+    signupButton = Button(mainFrame, text="Sign up", command=register)
+    signupButton.place(width=100, height=50, x=100, y=200)
 
     # Nav bar
     navFrame = Frame(root, style="NavBar.TFrame")
@@ -161,7 +164,7 @@ def login_screen():
 
     # Buttons
     loginButton = Button(mainFrame, text="Login", command = lambda: login_verify(user.get(), password.get()))
-    signupButton = Button(mainFrame, text="Sign up", command=register)
+    starterButton = Button(mainFrame, text="Back", command=starter_screen)
 
     # Layout
     logLabel.place(width=80, x=110, y=10)
@@ -172,7 +175,7 @@ def login_screen():
     password.place(width=200, x=50, y=175)
 
     loginButton.place(width=80, x=60, y=240)
-    signupButton.place(width=80, x=160, y=240)
+    starterButton.place(width=80, x=160, y=240)
 
     userIncorect.place(width=180, x=60, y=280)
 
@@ -198,7 +201,7 @@ def register():
 
     # Buttons
     signupButton = Button(mainFrame, text="Sign up", command= lambda: register_verify(user.get(), password.get(), postcode.get(), mobile.get()))
-    loginButton = Button(mainFrame, text="Login", command=login_screen)
+    starterButton = Button(mainFrame, text="Back", command=starter_screen)
 
     # Layout
     regLabel.place(width=100, x=110, y=10)
@@ -215,7 +218,7 @@ def register():
     mobileLabel.place(width=150, x=50, y=270)
     mobile.place(width=200, x=50, y=295)
 
-    loginButton.place(width=80, x=160, y=340)
+    starterButton.place(width=80, x=160, y=340)
     signupButton.place(width=80, x=60, y=340)
 
     accountExists.place(width=124, x=88, y=370)
@@ -417,7 +420,7 @@ def profile():
     remove_all_widgets(mainFrame)
 
     # Labels
-    regLabel = Label(mainFrame, text="Sign up", font=header_font, background=background)
+    regLabel = Label(mainFrame, text="Profile", font=header_font, background=background)
     userLabel = Label(mainFrame, text="Enter username: ", background=background)
     passwordLabel = Label(mainFrame, text="Enter password: ", background=background)
     postcodeLabel = Label(mainFrame, text="Enter postcode: ", background=background)
@@ -560,6 +563,8 @@ def basket():
         basketNextButton.configure(state="disabled")
     else:
         basketNextButton.configure(state="normal")
+
+    
 
     
     # Checkout button
