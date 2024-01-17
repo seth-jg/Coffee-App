@@ -7,6 +7,40 @@ from DatabaseFunctions import *
 from AccountHandling import *
 from PIL import Image, ImageTk
 
+'''
+INDEX (lines) may change from code edits
+---------
+Root screen: 31
+Main Variables: 37
+Starter screen: 78
+Widget change and remove: 123
+Popup screen: 136
+Reset variables: 150
+Login screen: 166
+Register: 219
+Store locator: 186
+Menu/ home screen: 376
+Veiw orders: 481
+Profile:
+Basket:
+Checkout:
+Payment:
+Ordered screen:
+
+
+BUGS
+--------
+- shop not locating properly. Always printing tje last stor in the list
+- Curly brackets arount all items past the 1st page in basket but not home page
+
+
+TODO
+-------
+Account settings. Should be somewhat easy as i have already created the claass that can manipulate the account
+Order page
+'''
+
+
 # Create root screen
 root = Tk()
 root.geometry("300x500")
@@ -35,6 +69,7 @@ root.config(bg=background) # Change root background
 # Font
 custom_font = font.Font(family="Arial", size=22, weight="bold")
 header_font = font.Font(family="Arial", size=18)
+small_header = font.Font(family="Arial", size=14)
 
 # setting the styles
 mainStyle = Style()
@@ -105,6 +140,20 @@ def add_color_to_all_widgets(parent):
             widget.config(background=itemColor)
 
 
+def show_popup(title="Popup Window", message="This is a popup", time=1400):
+    popup = Toplevel(root)
+    popup.title(title)
+    
+    popup.config(background=background)
+    popup.geometry("200x75")
+
+    label = Label(popup, text=message, background=background)
+    label.pack(padx=10, pady=20)
+
+    # Schedule the destruction of the popup after 2000 milliseconds (2 seconds)
+    popup.after(time, popup.destroy)
+
+
 def reset_variables():
     global _basketDictionary, _shopID, _shop, _total, _orderNumber, basketCurrentPage, storeCurrentPage, menuCurrentPage, checkCurrentPage, orderCurrentPage
     _basketDictionary = {}
@@ -135,27 +184,9 @@ def login_verify(user, pword):
         basketButton.config(state="normal")
         profileButton.config(state="normal")
         store_locator()
+        show_popup("Logged In", f"Logged in as {user}")
     else:
         userIncorect.config(text="Username or Password Incorect")
-
-
-def register_verify(user, pword, pcode, mobi):
-    if not check_username_exists(user):
-        create_new_user(user, pword, pcode, mobi)
-        global _user
-        global _password
-        global _postcode
-        global _mobile
-        _user = user
-        _password = pword
-        _postcode = pcode
-        _mobile = mobi
-        homeButton.config(state="normal")
-        basketButton.config(state="normal")
-        profileButton.config(state="normal")
-        store_locator()
-    else:
-        accountExists.config(text="Account already exists")
 
 # Login screen
 def login_screen():
@@ -188,6 +219,26 @@ def login_screen():
     starterButton.place(width=80, x=160, y=240)
 
     userIncorect.place(width=180, x=60, y=280)
+
+
+def register_verify(user, pword, pcode, mobi):
+    if not check_username_exists(user):
+        create_new_user(user, pword, pcode, mobi)
+        global _user
+        global _password
+        global _postcode
+        global _mobile
+        _user = user
+        _password = pword
+        _postcode = pcode
+        _mobile = mobi
+        homeButton.config(state="normal")
+        basketButton.config(state="normal")
+        profileButton.config(state="normal")
+        store_locator()
+        show_popup("Registered", f"Registered user: {user}")
+    else:
+        accountExists.config(text="Account already exists")
 
 
 # Sign up screen
@@ -247,11 +298,12 @@ def store_previous_page():
         storeCurrentPage -= 1
         home()
 
-def store_located(id, shop):
+def store_located(id, shop):                                   
     global _shop
     global _shopID
     _shop = shop
     _shopID = id
+    show_popup("Store Located", f"You selected: {shop}")
     home()
 
 # Store locator screen
@@ -342,9 +394,11 @@ def item_selected(item, price):
         newQuantity = coffee[1] + 1
         newPrice = price * newQuantity
         _basketDictionary[item] = [newPrice, newQuantity]
+        show_popup("Item Selected", f"{item} Added to basket")
         # print(_basketDictionary)
     else:
         _basketDictionary[item] = [price, 1]
+        show_popup("Item Selected", f"{item} Added to basket")
     # print(_basketDictionary)
 
 # Home screen
@@ -423,11 +477,43 @@ def home():
         menuNextButton.configure(state="disabled")
     else:
         menuNextButton.configure(state="normal")
+
+
+def show_order(orderNo, user, storeID, quantities, items, prices, total):
+    popup = Toplevel(root)
+    popup.title(f"Order: {orderNo}")
+    popup.config(background=background)
+
+    rows = list(zip(quantities, items, prices))
     
+    orderLabel = Label(popup, text=f"{orderNo}", font=small_header, background=background)
+    orderLabel.pack(pady=10)
+
+    for quantity, item, price in rows:
+        Label(popup, text=f"{quantity}    {item}    {price}").pack(pady=10)
+
+    totalLabel = Label(popup, text=f"Total: {total}", font=small_header, background=background)
+    totalLabel.pack(pady=10)
+
+    closeBtn = Button(popup, text="Close", height=2, width=10, command=popup.destroy)
+    closeBtn.pack(pady=20)
+
+    clearBtn = Button(popup, text="Clear Order", height=2, width=10, command=lambda: delete_order(orderNo))
+    clearBtn.pack(pady=20)
+
+def view_orders():
+    remove_all_widgets(mainFrame)
+
+    veiwOrderLabel = Label(mainFrame, text="Orders", font=header_font, background=background)
+    veiwOrderLabel.place(width=100, x=110, y=10)
+
+    orders = view_orders()
 
 # Profile screen
 def profile():
     remove_all_widgets(mainFrame)
+
+    print(_shop, _shopID)
 
     # Labels
     regLabel = Label(mainFrame, text="Profile", font=header_font, background=background)
@@ -483,10 +569,12 @@ def update_basket(coffee, price, quantity):
     # print(coffeeInfo[1])
     newPrice = float(coffeeInfo[1]) * float(quantity)
     _basketDictionary[coffee] = [newPrice, quantity]
+    show_popup("Updated Basket", "Basket updated")
     basket()
 
 def delete_item_from_basket(item):
     _basketDictionary.pop(item)
+    show_popup("Item Deleted", f"{item} deleted")
     basket()
 
 def basket():
@@ -530,7 +618,7 @@ def basket():
         coffee = _basketDictionary[product[0]]
         price = coffee[0]
         quantity = coffee[1]
-        # print(price, quantity)
+        #print(product, price, quantity)
 
         coffeeFrame = Frame(basketFrame)
         coffeeFrame.place(width=300, height=50, x=0, y=position)
@@ -574,9 +662,6 @@ def basket():
     else:
         basketNextButton.configure(state="normal")
 
-    
-
-    
     # Checkout button
     checkoutButton = Button(mainFrame, text="checkout", command=checkout_screen)
     checkoutButton.place(width=80, height=30, x=110, y=360)
