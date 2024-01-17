@@ -5,6 +5,7 @@ from tkinter import font
 from random import randint
 from DatabaseFunctions import *
 from AccountHandling import *
+from PIL import Image, ImageTk
 
 # Create root screen
 root = Tk()
@@ -20,6 +21,8 @@ _shopID = ""
 _shop = ""
 _total = 0
 _orderNumber = 0
+logo_path = "beansandbrewLOGO_resized.jpg"
+background_path = "coffeeBack.jpg"
 
 # 2d array for customers basket
 _basketDictionary = {} 
@@ -58,12 +61,19 @@ def starter_screen():
     mainFrame = Frame(root, style="Main.TFrame")
     mainFrame.place(width=300, height=400, x=0, y=50)
 
+
+    logo_img = ImageTk.PhotoImage(Image.open(logo_path))
+    logo_label = Label(mainFrame, image=logo_img, background=background)
+    logo_label.place(x=50, y=10, width=200, height=200)
+
+
     # Start the app
     loginButton = Button(mainFrame, text="Login", command=login_screen)
-    loginButton.place(width=100, height=50, x=100, y=130)
+    loginButton.place(width=100, height=50, x=100, y=240)
 
     signupButton = Button(mainFrame, text="Sign up", command=register)
-    signupButton.place(width=100, height=50, x=100, y=200)
+    signupButton.place(width=100, height=50, x=100, y=310)
+
 
     # Nav bar
     navFrame = Frame(root, style="NavBar.TFrame")
