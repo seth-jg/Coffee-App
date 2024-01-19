@@ -85,7 +85,7 @@ def delete_order(orderID):
         conn.commit()
         conn.close()
 
-def veiw_orders():
+def view_orders_from_database():
     conn = sqlite3.connect("BeansAndBrewDatabase.db")
     cur = conn.cursor()
     cur.execute("SELECT * FROM orders")

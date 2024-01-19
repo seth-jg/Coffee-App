@@ -501,13 +501,28 @@ def show_order(orderNo, user, storeID, quantities, items, prices, total):
     clearBtn = Button(popup, text="Clear Order", height=2, width=10, command=lambda: delete_order(orderNo))
     clearBtn.pack(pady=20)
 
+
+currentOrderPage = 1
+def order_next_page(basketLastPage):
+    global orderCurrentPage
+    if orderCurrentPage != basketLastPage:
+        orderCurrentPage += 1
+        view_orders()
+
+def order_previous_page():
+    global orderCurrentPage
+    if orderCurrentPage != 1:
+        orderCurrentPage -= 1
+        view_orders()
+
 def view_orders():
     remove_all_widgets(mainFrame)
 
     veiwOrderLabel = Label(mainFrame, text="Orders", font=header_font, background=background)
     veiwOrderLabel.place(width=100, x=110, y=10)
 
-    orders = view_orders()
+    orders = view_orders_from_database()
+
 
 # Profile screen
 def profile():
