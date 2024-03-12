@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DdlMappings">
+    <mapping uuid="025b4660-643e-457f-a77c-967ab109f622" name="BeansAndBrewDatabase Mapping">
+      <data-sources db="e54c1514-ec31-4491-a6f8-95059100cd45" />
+      <scope>
+        <node kind="database" negative="1" />
+      </scope>
+    </mapping>
+  </component>
+</project>

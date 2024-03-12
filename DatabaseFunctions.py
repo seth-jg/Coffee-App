@@ -64,6 +64,8 @@ def get_all_products():
     conn.close()
     return products
 
+get_all_products()
+
 def get_all_products_dictioanary():
     conn = sqlite3.connect("BeansAndBrewDatabase.db")
     cur = conn.cursor()
